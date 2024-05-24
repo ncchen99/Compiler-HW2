@@ -5,7 +5,12 @@ func: main
 > Insert `argv` (addr: 0) to scope level 1
 STR_LIT "Hello World!"
 cout string
-/mnt/c/Users/ncc/Desktop/2024-Spring-NCKU-CompilerHW2/input/subtask02-comment/testcase03.cpp:13:1: error:  syntax error
-    13 |} 
-       |^
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         11        -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        11        ([Ljava/lang/String;)I
 Total lines: 13

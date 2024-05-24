@@ -98,6 +98,10 @@ FuncBlock
     {
         dumpScope();
     }
+    | '{' StatementList '}' 
+    {
+        dumpScope();
+    }
 ;
 
 RETURNExpr
@@ -105,7 +109,6 @@ RETURNExpr
     {
         printf("RETURN\n");
     }
-    | 
 ;
 
 StatementList
