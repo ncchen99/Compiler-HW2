@@ -1,0 +1,23 @@
+> Create symbol table (scope level 0)
+func: check
+> Insert `check` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `a` (addr: 0) to scope level 1
+> Insert `b` (addr: 1) to scope level 1
+> Insert `s` (addr: 2) to scope level 1
+> Insert `c` (addr: 3) to scope level 1
+IDENT (name=s, address=2)
+IDENT (name=endl, address=-1)
+cout –Ã√µU string
+IDENT (name=a, address=0)
+STR_LIT " "
+IDENT (name=b, address=1)
+STR_LIT " "
+IDENT (name=s, address=2)
+IDENT (name=endl, address=-1)
+cout Ã√µU string pÃ√µU string –Ã√µU string
+IDENT (name=c, address=3)
+/mnt/c/Users/ncc/Desktop/2024-Spring-NCKU-CompilerHW2/input/subtask09-function/testcase01.cpp:4:19: error:  syntax error
+     4 |    return ( c == true );
+       |                  ^
+Total lines: 4

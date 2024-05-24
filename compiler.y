@@ -35,7 +35,7 @@
 
 /* Nonterminal with return, which need to sepcify type */
 %type <s_var> Type Literal cmp_op add_op mul_op unary_op assign_op 
-%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr PrimaryExpr Operand
+%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr PrimaryExpr Operand PrintableList
 
 %left ADD SUB
 %left MUL DIV REM
@@ -64,7 +64,8 @@ GlobalStatement
 FunctionDeclStmt
     : VARIABLE_T IDENT 
         {
-            printf("func: %s", $<s_var>2);
+            printf("func: %s\n", $<s_var>2);
+            initJNISignature();
             createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, true, false);
             pushScope();
         } '(' ParameterList ')'
@@ -101,6 +102,9 @@ FuncBlock
 
 RETURNExpr
     : RETURN Expression
+    {
+        printf("RETURN\n");
+    }
     | 
 ;
 
@@ -167,29 +171,25 @@ Block
 
 /*cin cout*/
 CoutStmt
-	: COUT SHL PrintableList ';' {printf("cout\n");}
+	: COUT SHL PrintableList 
+    { printf("cout %s\n", $<s_var>3);}
 ;
 
 //可印出的列表
 PrintableList
     : Printable 
     {
-        printf("string")
+        $$ = $<s_var>1;
     }
     | PrintableList SHL Printable
+    {
+        $$ = catDoller($<s_var>1, $<s_var>3);
+    }
 ;
 
 //可印出的token
 Printable
-    : STR_LIT 
-    {
-        printf("STR_LIT \"%s\"\n", $<s_var>1);
-    }
-    | ENDL 
-    {
-        printf("IDENT (name=endl, address=-1)");
-    }
-	| Expression
+	: Expression
 ;
 
 
@@ -225,10 +225,6 @@ Expression
     : LogicalORExpr {$$ = $1;}
 ;
 
-FuncPara
-    : Expression ',' FuncPara
-    | Expression
-;
 
 LogicalORExpr
     : LogicalANDExpr LOR LogicalANDExpr
@@ -327,8 +323,8 @@ unary_op
 
 
 Type
-	: INT		{ $$ = "int32"; }
-	| FLOAT		{ $$ = "float32"; }
+	: INT		{ $$ = "int"; }
+	| FLOAT		{ $$ = "float"; }
 	| STRING	{ $$ = "string"; }
 	| BOOL		{ $$ = "bool"; }
 ;
@@ -340,9 +336,8 @@ PrimaryExpr
 
 Operand 
     : Literal { $$ = $1; }
-    | IDENT { $$ = findSymbol($<s_var>1, false); } 
-    | IDENT '(' ')' { findSymbol($<s_var>1, true);} 
-    | IDENT '(' FuncPara ')' { findSymbol($<s_var>1, true);} 
+    | IDENT { $$ = findSymbol($<s_var>1); } 
+    | IDENT '(' ')' { findSymbol($<s_var>1);} 
     | '(' Expression ')' { $$ = $2; }
 ;
 
@@ -352,11 +347,11 @@ ConversionExpr
 
 Literal
     : INT_LIT
-        {$$ = "int32"; 
+        {$$ = "int"; 
         printf("INT_LIT %d\n", $<i_var>1); 
         }
     | FLOAT_LIT
-        {$$ = "float32"; 
+        {$$ = "float"; 
         printf("FLOAT_LIT %f\n", $<f_var>1); 
         }
     | TRUE 
@@ -364,12 +359,19 @@ Literal
         printf("TRUE 1\n");
         }
     | FALSE 
-        {$$ = "bool"; 
-        printf("FALSE 0\n");
+        {   
+            $$ = "bool"; 
+            printf("FALSE 0\n");
         }
-    | '"' STR_LIT '"'
-        {$$ = "string"; 
-        printf("STR_LIT %s\n", $<s_var>2); 
+    | STR_LIT 
+        {
+            $$ = "string"; 
+            printf("STR_LIT \"%s\"\n", $<s_var>1);
+        }
+    | ENDL 
+        {   
+            $$ = "string";
+            printf("IDENT (name=endl, address=-1)\n");
         }
 ;
 

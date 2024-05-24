@@ -1,5 +1,6 @@
 CFLAGS := -Wall -O0 -ggdb
 YFLAG := -d -v
+STACK_SRC := ./stack.c
 MAIN_SRC := ./main.c
 LEX_SRC := ./compiler.l
 YAC_SRC := ./compiler.y
@@ -15,32 +16,35 @@ LEX_OUT := ${BUILD}/lex.yy.c
 YAC_OUT := ${BUILD}/y.tab.c
 MAIN_OUT := ${BUILD}/main.o
 JAVA_ASM_OUT := ${BUILD}/Main.j
+STACK_OUT := ${BUILD}/stack.o
 
 all: build run
 
 build: ${COMPILER}
 
-.PHONY: main.c
-
 create_build_folder:
 	mkdir -p ${BUILD}
 	mkdir -p ${BUILD}/${BUILD_OUT}
 
-lex.yy.c:
+${LEX_OUT}: ${LEX_SRC}
 	$(info ---------- Compile Lex ----------)
 	lex -o ${LEX_OUT} ${LEX_SRC}
 
-y.tab.c:
+${YAC_OUT}: ${YAC_SRC}
 	$(info ---------- Compile Yacc ----------)
 	yacc ${YFLAG} -o ${YAC_OUT} ${YAC_SRC}
 
-main.c:
+${STACK_OUT}: ${STACK_SRC}
+	$(info ---------- Compile ${STACK_SRC} ----------)
+	gcc -g -c ${STACK_SRC} -o ${STACK_OUT}
+
+${MAIN_OUT}: ${MAIN_SRC}
 	$(info ---------- Compile ${MAIN_SRC} ----------)
 	gcc -g -c ${MAIN_SRC} -o ${MAIN_OUT}
 
-${COMPILER}: create_build_folder lex.yy.c y.tab.c main.c
+${COMPILER}: create_build_folder ${LEX_OUT} ${YAC_OUT} ${STACK_OUT} ${MAIN_OUT}
 	$(info ---------- Create compiler ----------)
-	gcc ${CFLAGS} -o ${COMPILER_OUT} -iquote ./ -iquote ../ ${LEX_OUT} ${YAC_OUT} ${MAIN_OUT}
+	gcc ${CFLAGS} -o ${COMPILER_OUT} -iquote ./ -iquote ../ ${LEX_OUT} ${YAC_OUT} ${STACK_OUT} ${MAIN_OUT}
 
 run:
 	@./${COMPILER_OUT}

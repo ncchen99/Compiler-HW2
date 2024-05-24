@@ -16,6 +16,8 @@ int yylex_destroy();
 #define VAR_FLAG_ARRAY 0b00000001
 #define VAR_FLAG_POINTER 0b00000010
 
+char* catDoller(const char* s1, const char* s2);
+
 void pushScope();
 void dumpScope();
 
@@ -34,6 +36,8 @@ bool incAssign(Symbol* a, Symbol* out);
 bool decAssign(Symbol* a, Symbol* out);
 bool cast(Type type, Symbol* dest, Symbol* out);
 
+void initJNISignature();
+void buildJNISignature(Type type, bool isArr);
 // void stdoutPrint();
 
 // void insert_symbol(bool is_function, bool is_param, char* name, char* type, char* func_sig);

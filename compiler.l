@@ -108,6 +108,7 @@ fnumber ({digit}*\.{digit}+)
 "return"    { Return(RETURN); }
 "break"     { Return(BREAK); }
 "continue"  { Return(CONTINUE); }
+"endl"      { Return(ENDL); }
 
 
 "true"      { yylval.b_var = true; Return(BOOL_LIT); }

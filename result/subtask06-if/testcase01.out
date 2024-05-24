@@ -1,0 +1,10 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+> Insert `apple` (addr: 1) to scope level 1
+/mnt/c/Users/ncc/Desktop/2024-Spring-NCKU-CompilerHW2/input/subtask06-if/testcase01.cpp:2:15: error:  syntax error
+     2 |    int apple = 0;
+       |              ^
+Total lines: 2

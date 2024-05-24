@@ -1,5 +1,3 @@
-// stack.c
-
 #include "stack.h"
 
 #include <stdio.h>

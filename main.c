@@ -26,17 +26,25 @@ bool compileError;
 int indent = 0;
 int scopeLevel = -1;
 int funcLineNo = 0;
-int variableAddress = 0;
+int variableAddress = -1;
 int tableIndex = -1;
 
 Stack s;
 
-char funcSig[100] = "";
+char* funcSig;
 Type funcReturnType;
 Type variableTypeRecord;
 Type variableType;
 
 Table tables[100];
+
+char* catDoller(const char* s1, const char* s2) {
+    char* temp = (char*)malloc(strlen(s1) + strlen(s2) + 2);
+    strcpy(temp, s1);
+    strcat(temp, " ");
+    strcat(temp, s2);
+    return temp;
+}
 
 void pushScope() {
     // Create a new symbol table and initialize it
@@ -52,18 +60,18 @@ void dumpScope() {
     // Print the symbol table
     struct table* curTable = &tables[pop(&s)];
     printf("\n> Dump symbol table (scope level: %d)\n", curTable->scope);
-    printf("%-10s%-10s%-10s%-10s%-10s%-10s\n",
+    printf("%-10s%-20s%-10s%-10s%-10s%-10s\n",
            "Index", "Name", "Type", "Addr", "Lineno", "Func_sig");
     for (int i = 0; i < curTable->size; i++) {
         struct symbol* curSymbol = &curTable->symbols[i];
-        printf("%-10d%-10s%-10s%-10d%-10d%-10s\n",
+        printf("%-10d%-20s%-10s%-10d%-10d%-10s\n",
                curSymbol->index, curSymbol->name, curSymbol->type, curSymbol->addr, curSymbol->lineno, curSymbol->func_sig);
     }
-    printf("\n");
     scopeLevel--;
 }
 
 void initJNISignature() {
+    funcSig = (char*)malloc(100);
     funcSig[0] = '(';
     funcSig[1] = '\0';
 }
@@ -98,11 +106,14 @@ Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_
     struct table* curTable = &tables[peek(&s)];
     struct symbol* newSymbol = &curTable->symbols[curTable->size];
     newSymbol->name = strdup(name);
-    newSymbol->type = strdup(SymbolTypeName[type]);
-    newSymbol->func_sig = is_function ? strdup(funcSig) : "-";
-    if (is_function)
+    if (is_function) {
+        newSymbol->type = strdup("function");
         funcReturnType = type;
-
+        newSymbol->func_sig = funcSig;
+    } else {
+        newSymbol->type = strdup(SymbolTypeName[type]);
+        newSymbol->func_sig = "-";
+    }
     newSymbol->addr = variableAddress++;
     newSymbol->lineno = yylineno;
     newSymbol->index = curTable->size;
