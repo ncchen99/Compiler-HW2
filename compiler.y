@@ -356,12 +356,12 @@ Literal
         }
     | TRUE 
         {$$ = "bool"; 
-        printf("TRUE 1\n");
+        printf("BOOL_LIT TRUE\n");
         }
     | FALSE 
         {   
             $$ = "bool"; 
-            printf("FALSE 0\n");
+            printf("BOOL_LIT FALSE\n");
         }
     | STR_LIT 
         {
@@ -376,37 +376,3 @@ Literal
 ;
 
 %%
-/* C code section */
-
-/*     : Expression ADD Expression { $$.type = add($<object_val>1, $<object_val>3); }
-    | Expression SUB Expression { $$.type = sub($<object_val>1, $<object_val>3); }
-    | Expression MUL Expression { $$.type = mul($<object_val>1, $<object_val>3); }
-    | Expression DIV Expression { $$.type = div($<object_val>1, $<object_val>3); }
-    | Expression REM Expression { $$.type = rem($<object_val>1, $<object_val>3); }
-    | Expression BAN Expression { $$.type = band($<object_val>1, $<object_val>3); }
-    | Expression BOR Expression { $$.type = bor($<object_val>1, $<object_val>3); }
-    | Expression BXO Expression { $$.type = bxor($<object_val>1, $<object_val>3); }
-    | Expression SHR Expression { $$.type = shr($<object_val>1, $<object_val>3); }
-    | Expression SHL Expression { $$.type = shl($<object_val>1, $<object_val>3); }
-    | Expression ADD_ASSIGN Expression { $$.type = add_assign($<object_val>1, $<object_val>3); }
-    | Expression SUB_ASSIGN Expression { $$.type = sub_assign($<object_val>1, $<object_val>3); }
-    | Expression MUL_ASSIGN Expression { $$.type = mul_assign($<object_val>1, $<object_val>3); }
-    | Expression DIV_ASSIGN Expression { $$.type = div_assign($<object_val>1, $<object_val>3); }
-    | Expression REM_ASSIGN Expression { $$.type = rem_assign($<object_val>1, $<object_val>3); }
-    | Expression BAN_ASSIGN Expression { $$.type = band_assign($<object_val>1, $<object_val>3); }
-    | Expression BOR_ASSIGN Expression { $$.type = bor_assign($<object_val>1, $<object_val>3); }
-    | Expression BXO_ASSIGN Expression { $$.type = bxor_assign($<object_val>1, $<object_val>3); }
-    | Expression SHR_ASSIGN Expression { $$.type = shr_assign($<object_val>1, $<object_val>3); }
-    | Expression SHL_ASSIGN Expression { $$.type = shl_assign($<object_val>1, $<object_val>3); }
-    | Expression INC_ASSIGN Expression { $$.type = inc_assign($<object_val>1, $<object_val>3); }
-    | Expression DEC_ASSIGN Expression { $$.type = dec_assign($<object_val>1, $<object_val>3); }
-    | Expression GTR Expression { $$.type = gtr($<object_val>1, $<object_val>3); }
-    | Expression LES Expression { $$.type = les($<object_val>1, $<object_val>3); }
-    | Expression GEQ Expression { $$.type = geq($<object_val>1, $<object_val>3); }
-    | Expression LEQ Expression { $$.type = leq($<object_val>1, $<object_val>3); }
-    | Expression EQL Expression { $$.type = eql($<object_val>1, $<object_val>3); }
-    | Expression NEQ Expression { $$.type = neq($<object_val>1, $<object_val>3); }
-    | Expression LAN Expression { $$.type = land($<object_val>1, $<object_val>3); }
-    | Expression LOR Expression { $$.type = lor($<object_val>1, $<object_val>3); }
-    | Expression NOT Expression { $$.type = not($<object_val>1, $<object_val>3); }
-    | '(' Expression ')' { $$.type = $<object_val>2; } */
