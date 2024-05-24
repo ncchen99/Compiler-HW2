@@ -1,0 +1,28 @@
+{
+    "files.associations": {
+        "*.rmd": "markdown",
+        "cmath": "cpp",
+        "stdbool.h": "c",
+        "stdint.h": "c",
+        "cstdint": "c",
+        "main.h": "c",
+        "compiler_common.h": "c",
+        "string.h": "c",
+        "any": "c",
+        "array": "c",
+        "chrono": "c",
+        "functional": "c",
+        "istream": "c",
+        "memory_resource": "c",
+        "ostream": "c",
+        "ratio": "c",
+        "scoped_allocator": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "variant": "c",
+        "stack.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c"
+    }
+}
