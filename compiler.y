@@ -173,27 +173,17 @@ IncDecStmt
 
 DeclarationStmt
     : VARIABLE_T { setVarType($<var_type>1); } DeclaratorList
-    {
-        $$ = $<s_var>2;
-    }
 ;
 
 DeclaratorList
 	: Declarator
-    {
-        $$ = $<s_var>1;
-    }
 	| DeclaratorList ',' Declarator 
-    {
-        $$ = catDoller($<s_var>1, $<s_var>3);
-    }
 ;
 
 Declarator
     : IDENT 
     {
         createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, false);
-        $$ = $<s_var>1;
     }
 	| IDENT VAL_ASSIGN Expression 
     {
@@ -201,25 +191,21 @@ Declarator
             setVarType(getVarTypeByStr($<s_var>3));
         }
         createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false,false);
-        $$ = $<s_var>1;
     }
 	| IDENT '[' Expression ']' 
     {
 		printf("create array: %d\n", 0);
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
-        $$ = $<s_var>1;
 	}
 	| IDENT '[' Expression ']' '[' Expression ']' 
     {
 		printf("create array: %d\n", 0);
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
-        $$ = $<s_var>1;
 	}
 	| IDENT '[' Expression ']' VAL_ASSIGN { array_element_count = 0; } '{' ElementList '}' 
     {
 		printf("create array: %d\n", array_element_count);
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
-        $$ = $<s_var>1;
 	}
 ;
 
@@ -288,13 +274,11 @@ FORStmt
 
 ForClause
     : InitStmt ';' Condition ';' PostStmt
-    | DeclarationStmt ':' Expression 
+    | VARIABLE_T IDENT {createSymbol(0, $<s_var>2, VAR_FLAG_DEFAULT, false, false, false);} ':' Expression 
     {
-        printf("DeclarationStmt：%s \n ", $<s_var>1);
-        // if(getVarType() == AUTO_TYPE) {
-        //     printf("DeclarationStmt：%s", $<s_var>1);
-        //     // updateSymbolType($<s_var>1, getVarTypeByStr($<s_var>3));
-        // }
+        if($<var_type>1 == AUTO_TYPE) {
+            updateSymbolType($<s_var>2, INT_TYPE);
+        }
     }
     
 ;
