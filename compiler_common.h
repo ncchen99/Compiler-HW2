@@ -18,21 +18,6 @@ typedef enum _type {
     FUNCTION_TYPE,
 } Type;
 
-// typedef struct _symbolData {
-//     char* name;
-//     int32_t index;
-//     int64_t addr;
-//     int32_t lineno;
-//     char* func_sig;
-//     uint8_t func_var;
-// } SymbolData;
-
-// typedef struct _object {
-//     ObjectType type;
-//     uint64_t value;
-//     SymbolData* symbol;
-// } Object;
-
 //////////////// Symbol Table ////////////////
 typedef struct symbol {
     char* name;

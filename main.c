@@ -12,9 +12,13 @@
 
 const char* SymbolTypeName[] = {
     [UNDEFINED_TYPE] = "undefined",
+    [AUTO_TYPE] = "auto",
     [VOID_TYPE] = "void",
+    [CHAR_TYPE] = "char",
     [INT_TYPE] = "int",
+    [LONG_TYPE] = "long",
     [FLOAT_TYPE] = "float",
+    [DOUBLE_TYPE] = "double",
     [BOOL_TYPE] = "bool",
     [STR_TYPE] = "string",
     [FUNCTION_TYPE] = "function",
@@ -75,6 +79,19 @@ void dumpScope() {
 
 void setVarType(Type type) {
     variableTypeRecord = type;
+}
+
+Type getVarType() {
+    return variableTypeRecord;
+}
+
+Type getVarTypeByStr(char* type) {
+    for (int i = 0; i < sizeof(SymbolTypeName) / sizeof(SymbolTypeName[0]); i++) {
+        if (strcmp(SymbolTypeName[i], type) == 0) {
+            return i;
+        }
+    }
+    return UNDEFINED_TYPE;
 }
 
 void initJNISignature() {

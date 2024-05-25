@@ -117,8 +117,7 @@ StatementList
 ;
 
 Statement
-    : DeclarationStmt ';'
-    | Block
+    : Block
     | CoutStmt ';'
     | SimpleStmt ';'
     | IFStmt
@@ -189,6 +188,9 @@ Declarator
     }
 	| IDENT VAL_ASSIGN Expression 
     {
+        if(getVarType() == AUTO_TYPE){
+            setVarType(getVarTypeByStr($<s_var>3));
+        }
         createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false,false);
     }
 	| IDENT '[' Expression ']' 
@@ -435,21 +437,28 @@ Operand
 ;
 
 ConversionExpr 
-    : '(' VARIABLE_T ')' Operand {printf("Cast to %s\n", typeToString($<var_type>2)); $$ = typeToString($<var_type>2);}
+    : '(' VARIABLE_T ')' Operand 
+    { 
+        printf("Cast to %s\n", typeToString($<var_type>2)); 
+        $$ = typeToString($<var_type>2);
+    }
 ;
 
 Literal
     : INT_LIT
-        {$$ = "int"; 
-        printf("INT_LIT %d\n", $<i_var>1); 
+        {
+            $$ = "int"; 
+            printf("INT_LIT %d\n", $<i_var>1); 
         }
     | FLOAT_LIT
-        {$$ = "float"; 
-        printf("FLOAT_LIT %f\n", $<f_var>1); 
+        {
+            $$ = "float"; 
+            printf("FLOAT_LIT %f\n", $<f_var>1); 
         }
     | BOOL_LIT 
-        {$$ = "bool"; 
-        printf("BOOL_LIT %s\n", $<b_var>1 ? "TRUE" : "FALSE"); 
+        {
+            $$ = "bool"; 
+            printf("BOOL_LIT %s\n", $<b_var>1 ? "TRUE" : "FALSE"); 
         }
     | STR_LIT 
         {
