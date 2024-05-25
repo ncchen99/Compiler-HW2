@@ -26,7 +26,7 @@ bool compileError;
 int indent = 0;
 int scopeLevel = -1;
 int funcLineNo = 0;
-int variableAddress = -1;
+int variableAddress = 0;
 int tableIndex = -1;
 
 Stack s;
@@ -96,7 +96,7 @@ void buildJNISignature(Type type, bool isArr) {
             strcat(funcSig, "F");
             break;
         case BOOL_TYPE:
-            strcat(funcSig, "Z");
+            strcat(funcSig, "B");
             break;
         case STR_TYPE:
             strcat(funcSig, "Ljava/lang/String;");
@@ -117,18 +117,42 @@ Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_
         newSymbol->type = strdup("function");
         funcReturnType = type;
         newSymbol->func_sig = funcSig;
+        newSymbol->addr = -1;
     } else {
         type = (type == UNDEFINED_TYPE ? variableTypeRecord : type);
         newSymbol->type = strdup(SymbolTypeName[type]);
         newSymbol->func_sig = "-";
+        newSymbol->addr = variableAddress++;
     }
-    newSymbol->addr = variableAddress++;
     newSymbol->lineno = yylineno;
     newSymbol->index = curTable->size;
     curTable->size++;
 
     printf("> Insert `%s` (addr: %d) to scope level %d\n", name, newSymbol->addr, scopeLevel);
     return newSymbol;
+}
+
+char* findSymbol(char* name) {
+    Symbol* variable = NULL;
+    for (int i = tableIndex; i >= 0; i--) {
+        struct table* curTable = &tables[i];
+        for (int j = 0; j < curTable->size; j++) {
+            struct symbol* curSymbol = &curTable->symbols[j];
+            if (strcmp(curSymbol->name, name) == 0) {
+                variable = curSymbol;
+                if (strcmp(curSymbol->type, "function") == 0) {
+                    printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
+                    printf("call: %s%s\n", curSymbol->name, curSymbol->func_sig);
+                } else {
+                    printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
+                }
+                break;
+            }
+        }
+        if (variable != NULL)
+            break;
+    }
+    return variable->type;
 }
 
 void debugPrintInst(char instc, Symbol* a, Symbol* b, Symbol* out) {
@@ -175,28 +199,6 @@ bool decAssign(Symbol* a, Symbol* out) {
 
 bool cast(Type type, Symbol* dest, Symbol* out) {
     return false;
-}
-
-char* findSymbol(char* name) {
-    Symbol* variable = NULL;
-    for (int i = tableIndex; i >= 0; i--) {
-        struct table* curTable = &tables[i];
-        for (int j = 0; j < curTable->size; j++) {
-            struct symbol* curSymbol = &curTable->symbols[j];
-            if (strcmp(curSymbol->name, name) == 0) {
-                variable = curSymbol;
-                if (curSymbol->type == "function") {
-                    printf("call: %s%s\n", curSymbol->name, curSymbol->func_sig);
-                } else {
-                    printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
-                }
-                break;
-            }
-        }
-        if (variable != NULL)
-            break;
-    }
-    return variable->type;
 }
 
 void pushFunInParm(Symbol* variable) {

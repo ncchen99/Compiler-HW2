@@ -124,13 +124,14 @@ Statement
     | IFStmt
     | FORStmt
     | WHILEstmt
-    | ';'
 ;
 
 SimpleStmt
     : AssignmentStmt
     | ExpressionStmt
     | IncDecStmt
+    | DeclarationStmt
+    |
 ;
 
 AssignmentStmt
@@ -210,6 +211,7 @@ Declarator
 ElementList
     : Element
     | ElementList ',' Element
+    |
 ;
 
 Element
@@ -223,13 +225,12 @@ Block
     : '{' {pushScope();} StatementList '}' {dumpScope();}
 ;
 
-/*cin cout*/
+
 CoutStmt
 	: COUT SHL PrintableList 
     { printf("cout %s\n", $<s_var>3);}
 ;
 
-//可印出的列表
 PrintableList
     : Printable 
     {
@@ -241,13 +242,11 @@ PrintableList
     }
 ;
 
-//可印出的token
 Printable
 	: Expression
 ;
 
 
-/*if else*/
 IFStmt
 	: IF '(' Expression ')'{ printf("IF\n");} Statement
 	| IFStmt ELSE {printf("ELSE\n"); } Statement
@@ -256,12 +255,6 @@ IFStmt
 WHILEstmt
     : WHILE { printf("WHILE\n");} '(' Condition ')'  Statement
 ;
-
-
-/* IFStmt 
-    : IF { printf("IF\n");} '(' Condition ')' Statement ELSE {printf("ELSE\n"); } Statement
-    | IF { printf("IF\n");} '(' Condition ')' Statement
-    /* | IF { printf("IF\n");} '(' Condition ')' Block ELSE {printf("ELSE\n"); } IFStmt */
 
 Condition
     : Expression 
@@ -273,8 +266,7 @@ Condition
 ;
 
 FORStmt
-    : FOR '(' Condition ')' Block
-    | FOR '(' ForClause ')' Block
+    :FOR { printf("FOR\n"); } '(' { pushScope(); } ForClause ')' FuncBlock 
 ;
 
 ForClause
@@ -345,9 +337,9 @@ ComparisonExpr
 AdditionExpr
     : MultiplicationExpr add_op MultiplicationExpr
     {
-        if(strcmp($<s_var>1, $<s_var>3) != 0){
-            printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
-        }
+        // if(strcmp($<s_var>1, $<s_var>3) != 0){
+        //     printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
+        // } TODO: auto cast
         $$ = $1;
         printf("%s\n", $<s_var>2);
     }
@@ -437,7 +429,8 @@ PrimaryExpr
 Operand 
     : Literal { $$ = $<s_var>1; }
     | IDENT { $$ = findSymbol($<s_var>1); } 
-    | IDENT '(' ')' { findSymbol($<s_var>1);} 
+    | IDENT '(' ElementList ')' { findSymbol($<s_var>1);} 
+    | IDENT '[' Expression ']' { $$ = findSymbol($<s_var>1); }
     | '(' Expression ')' { $$ = $<s_var>2; }
 ;
 
