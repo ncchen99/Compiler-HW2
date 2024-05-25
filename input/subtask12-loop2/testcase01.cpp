@@ -1,13 +1,13 @@
 int main(string argv[]) {
     int counter = 0;
 
-    while( counter < 100000 ) {
+    while (counter < 100000) {
         counter += 1;
-        if( counter == 99999 ) {
+        if (counter == 99999) {
             break;
         }
 
-        if( counter % 91 == 0 ) {
+        if (counter % 91 == 0) {
             cout << "Hello World " << counter % 91 << endl;
         }
 

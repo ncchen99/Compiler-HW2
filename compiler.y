@@ -94,22 +94,23 @@ Parameter
     }
 
 FuncBlock
-    : '{' StatementList RETURNExpr ';' '}' 
+    : '{' StatementList RETURNExpr '}' 
     {
         dumpScope();
     }
-    | '{' StatementList '}' 
-    {
-        dumpScope();
-    }
-;
 
 RETURNExpr
-    : RETURN Expression
+    : RETURN Expression ';'
     {
         printf("RETURN\n");
     }
+    | RETURN ';'
+    {
+        printf("RETURN\n");
+    }
+    |
 ;
+
 
 StatementList
     : Statement StatementList
@@ -123,6 +124,8 @@ Statement
     | IFStmt
     | FORStmt
     | WHILEstmt
+    | BREAKStmt ';'
+    | CONTINUEStmt ';'
 ;
 
 SimpleStmt
@@ -224,13 +227,15 @@ Element
 ;
 
 Block  
-    : '{' {pushScope();} StatementList '}' {dumpScope();}
+    : '{' { pushScope(); } StatementList '}' { dumpScope(); }
 ;
 
 
 CoutStmt
 	: COUT SHL PrintableList 
-    { printf("cout %s\n", $<s_var>3);}
+    { 
+        printf("cout %s\n", $<s_var>3);
+    }
 ;
 
 PrintableList
@@ -250,12 +255,12 @@ Printable
 
 
 IFStmt
-	: IF '(' Expression ')'{ printf("IF\n");} Statement
-	| IFStmt ELSE {printf("ELSE\n"); } Statement
+	: IF '(' Expression ')' { printf("IF\n"); } Statement
+	| IFStmt ELSE { printf("ELSE\n"); } Statement
 ;
 
 WHILEstmt
-    : WHILE { printf("WHILE\n");} '(' Condition ')'  Statement
+    : WHILE { printf("WHILE\n"); } '(' Condition ')' Statement
 ;
 
 Condition
@@ -277,6 +282,20 @@ ForClause
 
 InitStmt : SimpleStmt
 PostStmt : SimpleStmt
+
+BREAKStmt
+    : BREAK
+    {
+        printf("BREAK\n");
+    }
+;   
+
+CONTINUEStmt
+    : CONTINUE
+    {
+        printf("CONTINUE\n");
+    }
+;
 
 
 Expression
