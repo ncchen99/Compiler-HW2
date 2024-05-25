@@ -39,6 +39,7 @@ bool cast(Type type, Symbol* dest, Symbol* out);
 void initJNISignature();
 void buildJNISignature(Type type, bool isArr);
 void setVarType(Type type);
+char* typeToString(Type type);
 
 // void stdoutPrint();
 

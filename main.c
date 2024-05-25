@@ -45,6 +45,10 @@ char* catDoller(const char* s1, const char* s2) {
     return temp;
 }
 
+char* typeToString(Type type) {
+    return strdup(SymbolTypeName[type]);
+}
+
 void pushScope() {
     // Create a new symbol table and initialize it
     scopeLevel++;

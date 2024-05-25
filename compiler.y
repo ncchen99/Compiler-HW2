@@ -34,8 +34,8 @@
 %token <b_var> BOOL_LIT
 
 /* Nonterminal with return, which need to sepcify type */
-%type <s_var> Type Literal cmp_op add_op mul_op unary_op assign_op bit_op bit_op2
-%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr BitOperationExpr PrimaryExpr Operand PrintableList 
+%type <s_var> Literal cmp_op add_op mul_op unary_op assign_op bit_op bit_op2
+%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr BitOperationExpr PrimaryExpr Operand PrintableList ConversionExpr
 
 %left ADD SUB
 %left MUL DIV REM
@@ -135,9 +135,9 @@ SimpleStmt
 AssignmentStmt
     : Expression assign_op Expression 
     {
-        if(strcmp($<s_var>1, $<s_var>3) != 0){
-            printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
-        }
+        // if(strcmp($<s_var>1, $<s_var>3) != 0){
+        //     printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
+        // }
         printf("%s\n", $<s_var>2);
     }
 ;
@@ -282,9 +282,9 @@ Expression
 LogicalORExpr
     : LogicalANDExpr LOR LogicalANDExpr
     {
-        if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
-            printf("error:%d: invalid operation: (operator LOR not defined on int32)\n", yylineno);
-        }
+        // if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
+        //     printf("error:%d: invalid operation: (operator LOR not defined on int32)\n", yylineno);
+        // }
         $$ = "bool";
     printf("LOR\n");
     }
@@ -294,9 +294,9 @@ LogicalORExpr
 LogicalANDExpr
     : ComparisonExpr LAN ComparisonExpr
     {
-        if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
-            printf("error:%d: invalid operation: (operator LAND not defined on int32)\n", yylineno);
-        }
+        // if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
+        //     printf("error:%d: invalid operation: (operator LAND not defined on int32)\n", yylineno);
+        // }
         $$ = "bool"; 
         printf("LAN\n");
     }
@@ -306,9 +306,9 @@ LogicalANDExpr
 ComparisonExpr
     : AdditionExpr cmp_op AdditionExpr
     {
-        if(strcmp($<s_var>1, $<s_var>3) != 0){
-            printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
-        }
+        // if(strcmp($<s_var>1, $<s_var>3) != 0){
+        //     printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
+        // }
         $$ = "bool";
         printf("%s\n", $<s_var>2);
     }
@@ -318,9 +318,9 @@ ComparisonExpr
 AdditionExpr
     : MultiplicationExpr add_op MultiplicationExpr
     {
-        if(strcmp($<s_var>1, $<s_var>3) != 0){
-            printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
-        }
+        // if(strcmp($<s_var>1, $<s_var>3) != 0){
+        //     printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
+        // }
         $$ = $1;
         printf("%s\n", $<s_var>2);
     }
@@ -334,9 +334,9 @@ AdditionExpr
 MultiplicationExpr
     : BitOperationExpr mul_op BitOperationExpr
     {
-        if((strcmp($<s_var>2, "REM") == 0)&&(strcmp($<s_var>3, "float32") == 0)){
-            printf("error:%d: invalid operation: (operator REM not defined on float32)\n", yylineno);
-        }
+        // if((strcmp($<s_var>2, "REM") == 0)&&(strcmp($<s_var>3, "float32") == 0)){
+        //     printf("error:%d: invalid operation: (operator REM not defined on float32)\n", yylineno);
+        // }
         $$ = $1;
         printf("%s\n", $<s_var>2);
     }
@@ -345,9 +345,9 @@ MultiplicationExpr
 
 BitOperationExpr
     : BitOperationExpr bit_op2 BitOperationExpr { {
-         if(strcmp($<s_var>1, $<s_var>3) != 0){
-            printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
-        }
+        //  if(strcmp($<s_var>1, $<s_var>3) != 0){
+        //     printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
+        // }
         $$ = $1;
         printf("%s\n", $<s_var>2);
         }
@@ -402,16 +402,9 @@ bit_op
     : BNT { $$ = "BNT"; }
 ;
 
-Type
-	: INT		{ $$ = "int"; }
-	| FLOAT		{ $$ = "float"; }
-	| STRING	{ $$ = "string"; }
-	| BOOL		{ $$ = "bool"; }
-;
-
 PrimaryExpr 
     : Operand { $$ = $<s_var>1; }
-    | ConversionExpr
+    | ConversionExpr { $$ = $<s_var>1; }
 ;
 
 Operand 
@@ -422,7 +415,7 @@ Operand
 ;
 
 ConversionExpr 
-    : '(' Type ')' Expression  {printf("%c2%c\n", $<s_var>3[0], $<s_var>1[0]); }
+    : '(' VARIABLE_T ')' Operand {printf("Cast to %s\n", typeToString($<var_type>2)); $$ = typeToString($<var_type>2);}
 ;
 
 Literal
