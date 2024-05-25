@@ -123,6 +123,7 @@ Statement
     | SimpleStmt ';'
     | IFStmt
     | FORStmt
+    | WHILEstmt
     | ';'
 ;
 
@@ -252,6 +253,11 @@ IFStmt
 	| IFStmt ELSE {printf("ELSE\n"); } Statement
 ;
 
+WHILEstmt
+    : WHILE { printf("WHILE\n");} '(' Condition ')'  Statement
+;
+
+
 /* IFStmt 
     : IF { printf("IF\n");} '(' Condition ')' Statement ELSE {printf("ELSE\n"); } Statement
     | IF { printf("IF\n");} '(' Condition ')' Statement
@@ -285,7 +291,15 @@ Expression
 
 
 LogicalORExpr
-    : LogicalANDExpr LOR LogicalANDExpr
+    : LogicalORExpr LOR LogicalANDExpr
+    {
+        if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
+            printf("error:%d: invalid operation: (operator LOR not defined on int32)\n", yylineno);
+        }
+        $$ = "bool";
+        printf("LOR\n");
+    }
+    | LogicalANDExpr LOR LogicalANDExpr
     {
         if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
             printf("error:%d: invalid operation: (operator LOR not defined on int32)\n", yylineno);
@@ -297,7 +311,15 @@ LogicalORExpr
 ;
 
 LogicalANDExpr
-    : ComparisonExpr LAN ComparisonExpr
+    : LogicalANDExpr LAN ComparisonExpr
+    {
+        if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
+            printf("error:%d: invalid operation: (operator LAND not defined on int32)\n", yylineno);
+        }
+        $$ = "bool"; 
+        printf("LAN\n");
+    }
+    | ComparisonExpr LAN ComparisonExpr
     {
         if((strcmp($<s_var>1, "int32") == 0)||(strcmp($<s_var>3, "int32") == 0)){
             printf("error:%d: invalid operation: (operator LAND not defined on int32)\n", yylineno);
