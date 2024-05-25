@@ -35,7 +35,7 @@
 
 /* Nonterminal with return, which need to sepcify type */
 %type <s_var> Literal cmp_op add_op mul_op unary_op assign_op bit_op bit_op2
-%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr BitOperationExpr PrimaryExpr Operand PrintableList ConversionExpr
+%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr BitOperationExpr PrimaryExpr Operand Variable PrintableList ConversionExpr Declarator DeclaratorList DeclarationStmt
 
 %left ADD SUB
 %left MUL DIV REM
@@ -172,22 +172,28 @@ IncDecStmt
 
 
 DeclarationStmt
-    : VARIABLE_T 
+    : VARIABLE_T { setVarType($<var_type>1); } DeclaratorList
     {
-        setVarType($<var_type>1);
+        $$ = $<s_var>2;
     }
-    DeclaratorList
 ;
 
 DeclaratorList
 	: Declarator
-	| DeclaratorList ',' Declarator
+    {
+        $$ = $<s_var>1;
+    }
+	| DeclaratorList ',' Declarator 
+    {
+        $$ = catDoller($<s_var>1, $<s_var>3);
+    }
 ;
 
 Declarator
     : IDENT 
     {
         createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, false);
+        $$ = $<s_var>1;
     }
 	| IDENT VAL_ASSIGN Expression 
     {
@@ -195,21 +201,25 @@ Declarator
             setVarType(getVarTypeByStr($<s_var>3));
         }
         createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false,false);
+        $$ = $<s_var>1;
     }
 	| IDENT '[' Expression ']' 
     {
 		printf("create array: %d\n", 0);
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
+        $$ = $<s_var>1;
 	}
 	| IDENT '[' Expression ']' '[' Expression ']' 
     {
 		printf("create array: %d\n", 0);
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
+        $$ = $<s_var>1;
 	}
 	| IDENT '[' Expression ']' VAL_ASSIGN { array_element_count = 0; } '{' ElementList '}' 
     {
 		printf("create array: %d\n", array_element_count);
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
+        $$ = $<s_var>1;
 	}
 ;
 
@@ -278,6 +288,15 @@ FORStmt
 
 ForClause
     : InitStmt ';' Condition ';' PostStmt
+    | DeclarationStmt ':' Expression 
+    {
+        printf("DeclarationStmt：%s \n ", $<s_var>1);
+        // if(getVarType() == AUTO_TYPE) {
+        //     printf("DeclarationStmt：%s", $<s_var>1);
+        //     // updateSymbolType($<s_var>1, getVarTypeByStr($<s_var>3));
+        // }
+    }
+    
 ;
 
 InitStmt : SimpleStmt
@@ -449,10 +468,14 @@ PrimaryExpr
 
 Operand 
     : Literal { $$ = $<s_var>1; }
-    | IDENT { $$ = findSymbol($<s_var>1); } 
-    | IDENT '(' ElementList ')' { findSymbol($<s_var>1);} 
-    | IDENT '[' Expression ']' { $$ = findSymbol($<s_var>1); }
+    | Variable { $$ = $<s_var>1; }
     | '(' Expression ')' { $$ = $<s_var>2; }
+;
+
+Variable
+    : IDENT { $$ = getSymbolType($<s_var>1);} 
+    | IDENT '(' ElementList ')' { getSymbolType($<s_var>1);} 
+    | IDENT '[' Expression ']' { $$ = getSymbolType($<s_var>1); }
 ;
 
 ConversionExpr 

@@ -149,27 +149,34 @@ Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_
     return newSymbol;
 }
 
-char* findSymbol(char* name) {
-    Symbol* variable = NULL;
+Symbol* findSymbol(char* name) {
+    Symbol* curSymbol = NULL;
     for (int i = tableIndex; i >= 0; i--) {
         struct table* curTable = &tables[i];
         for (int j = 0; j < curTable->size; j++) {
-            struct symbol* curSymbol = &curTable->symbols[j];
+            curSymbol = &curTable->symbols[j];
             if (strcmp(curSymbol->name, name) == 0) {
-                variable = curSymbol;
-                if (strcmp(curSymbol->type, "function") == 0) {
-                    printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
-                    printf("call: %s%s\n", curSymbol->name, curSymbol->func_sig);
-                } else {
-                    printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
-                }
-                break;
+                return curSymbol;
             }
         }
-        if (variable != NULL)
-            break;
     }
-    return variable->type;
+    return NULL;
+}
+
+char* getSymbolType(char* name) {
+    Symbol* curSymbol = findSymbol(name);
+    if (strcmp(curSymbol->type, "function") == 0) {
+        printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
+        printf("call: %s%s\n", curSymbol->name, curSymbol->func_sig);
+    } else {
+        printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
+    }
+    return strdup(curSymbol->type);
+}
+
+void updateSymbolType(char* name, Type type) {
+    Symbol* curSymbol = findSymbol(name);
+    curSymbol->type = strdup(SymbolTypeName[type]);
 }
 
 void debugPrintInst(char instc, Symbol* a, Symbol* b, Symbol* out) {

@@ -22,7 +22,9 @@ void pushScope();
 void dumpScope();
 
 Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_param, bool is_array);
-char* findSymbol(char* name);
+char* getSymbolType(char* name);
+Symbol* findSymbol(char* name);
+void updateSymbolType(char* name, Type type);
 
 bool expression(char op, Symbol* a, Symbol* b, Symbol* out);
 bool expBinary(char op, Symbol* a, Symbol* b, Symbol* out);
