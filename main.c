@@ -39,7 +39,7 @@ Type variableType;
 Table tables[100];
 
 char* catDoller(const char* s1, const char* s2) {
-    char* temp = (char*)malloc(strlen(s1) + strlen(s2) + 2);
+    char* temp = (char*)calloc(strlen(s1) + strlen(s2) + 2, sizeof(char));
     strcpy(temp, s1);
     strcat(temp, " ");
     strcat(temp, s2);
@@ -188,7 +188,7 @@ Symbol* findSymbol(char* name) {
         if (variable != NULL)
             break;
     }
-    return variable;
+    return variable->type;
 }
 
 void pushFunInParm(Symbol* variable) {

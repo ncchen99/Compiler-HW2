@@ -142,13 +142,19 @@ AssignmentStmt
     }
 ;
 
+
 assign_op
-    : VAL_ASSIGN {$$ = "ASSIGN";}
-    | ADD_ASSIGN {$$ = "ADD";}
-    | SUB_ASSIGN {$$ = "SUB";}
-    | MUL_ASSIGN {$$ = "MUL";}
-    | DIV_ASSIGN {$$ = "DIV";}
-    | REM_ASSIGN {$$ = "REM";}
+    : VAL_ASSIGN {$$ = "EQL_ASSIGN";}
+    | ADD_ASSIGN {$$ = "ADD_ASSIGN";}
+    | SUB_ASSIGN {$$ = "SUB_ASSIGN";}
+    | MUL_ASSIGN {$$ = "MUL_ASSIGN";}
+    | DIV_ASSIGN {$$ = "DIV_ASSIGN";}
+    | REM_ASSIGN {$$ = "REM_ASSIGN";}
+    | SHR_ASSIGN {$$ = "SHR_ASSIGN";}
+    | SHL_ASSIGN {$$ = "SHL_ASSIGN";}
+    | BAN_ASSIGN {$$ = "BAN_ASSIGN";}
+    | BOR_ASSIGN {$$ = "BOR_ASSIGN";}
+    | BXO_ASSIGN {$$ = "BXO_ASSIGN";}
 ;
 
 ExpressionStmt
@@ -162,7 +168,7 @@ IncDecStmt
 
 
 DeclarationStmt
-    : VARIABLE_T IDENT '=' Expression
+    : VARIABLE_T IDENT VAL_ASSIGN Expression
         {createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true);}
     | VARIABLE_T IDENT
         {createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true);}
@@ -333,15 +339,15 @@ Type
 ;
 
 PrimaryExpr 
-    : Operand { $$ = $1; }
+    : Operand { $$ = $<s_var>1; }
     | ConversionExpr
 ;
 
 Operand 
-    : Literal { $$ = $1; }
+    : Literal { $$ = $<s_var>1; }
     | IDENT { $$ = findSymbol($<s_var>1); } 
     | IDENT '(' ')' { findSymbol($<s_var>1);} 
-    | '(' Expression ')' { $$ = $2; }
+    | '(' Expression ')' { $$ = $<s_var>2; }
 ;
 
 ConversionExpr 
