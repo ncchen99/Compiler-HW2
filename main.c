@@ -33,8 +33,7 @@ Stack s;
 
 char* funcSig;
 Type funcReturnType;
-Type variableTypeRecord;
-Type variableType;
+Type variableTypeRecord = UNDEFINED_TYPE;
 
 Table tables[100];
 
@@ -70,6 +69,10 @@ void dumpScope() {
     scopeLevel--;
 }
 
+void setVarType(Type type) {
+    variableTypeRecord = type;
+}
+
 void initJNISignature() {
     funcSig = (char*)malloc(100);
     funcSig[0] = '(';
@@ -101,7 +104,7 @@ void buildJNISignature(Type type, bool isArr) {
     }
 }
 
-Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_param) {
+Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_param, bool is_array) {
     // Create a new symbol
     struct table* curTable = &tables[peek(&s)];
     struct symbol* newSymbol = &curTable->symbols[curTable->size];
@@ -111,6 +114,7 @@ Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_
         funcReturnType = type;
         newSymbol->func_sig = funcSig;
     } else {
+        type = (type == UNDEFINED_TYPE ? variableTypeRecord : type);
         newSymbol->type = strdup(SymbolTypeName[type]);
         newSymbol->func_sig = "-";
     }
@@ -169,7 +173,7 @@ bool cast(Type type, Symbol* dest, Symbol* out) {
     return false;
 }
 
-Symbol* findSymbol(char* name) {
+char* findSymbol(char* name) {
     Symbol* variable = NULL;
     for (int i = tableIndex; i >= 0; i--) {
         struct table* curTable = &tables[i];

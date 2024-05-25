@@ -5,7 +5,7 @@
     #include "main.h"
 
     int yydebug = 1;
-
+    int array_element_count = 0;
 %}
 
 /* Variable or self-defined structure */
@@ -34,8 +34,8 @@
 %token <b_var> BOOL_LIT
 
 /* Nonterminal with return, which need to sepcify type */
-%type <s_var> Type Literal cmp_op add_op mul_op unary_op assign_op 
-%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr PrimaryExpr Operand PrintableList
+%type <s_var> Type Literal cmp_op add_op mul_op unary_op assign_op bit_op bit_op2
+%type <s_var> Expression LogicalORExpr LogicalANDExpr ComparisonExpr AdditionExpr MultiplicationExpr UnaryExpr BitOperationExpr PrimaryExpr Operand PrintableList 
 
 %left ADD SUB
 %left MUL DIV REM
@@ -66,7 +66,7 @@ FunctionDeclStmt
         {
             printf("func: %s\n", $<s_var>2);
             initJNISignature();
-            createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, true, false);
+            createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, true, false, false);
             pushScope();
         } '(' ParameterList ')'
         {
@@ -84,12 +84,12 @@ ParameterList
 Parameter
     : VARIABLE_T IDENT 
     { 
-        createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true);
+        createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true, false);
         buildJNISignature($<var_type>1, false);
     }
     | VARIABLE_T IDENT '[' ']' 
     { 
-        createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true);
+        createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true, true);
         buildJNISignature($<var_type>1, true); 
     }
 
@@ -118,9 +118,9 @@ StatementList
 
 Statement
     : DeclarationStmt ';'
-    | SimpleStmt ';'
     | Block ';'
     | CoutStmt ';'
+    | SimpleStmt ';'
     | IFStmt ';'
     | FORStmt ';'
     | ';'
@@ -168,10 +168,54 @@ IncDecStmt
 
 
 DeclarationStmt
-    : VARIABLE_T IDENT VAL_ASSIGN Expression
-        {createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true);}
-    | VARIABLE_T IDENT
-        {createSymbol($<var_type>1, $<s_var>2, VAR_FLAG_DEFAULT, false, true);}
+    : VARIABLE_T 
+    {
+        setVarType($<var_type>1);
+    }
+    DeclaratorList
+;
+
+DeclaratorList
+	: Declarator
+	| DeclaratorList ',' Declarator
+;
+
+Declarator
+    : IDENT 
+    {
+        createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, false);
+    }
+	| IDENT VAL_ASSIGN Expression 
+    {
+        createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false,false);
+    }
+	| IDENT '[' Expression ']' 
+    {
+		printf("create array: %d\n", 0);
+		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
+	}
+	| IDENT '[' Expression ']' '[' Expression ']' 
+    {
+		printf("create array: %d\n", 0);
+		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
+	}
+	| IDENT '[' Expression ']' VAL_ASSIGN { array_element_count = 0; } '{' ElementList '}' 
+    {
+		printf("create array: %d\n", array_element_count);
+		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
+	}
+;
+
+ElementList
+    : Element
+    | ElementList ',' Element
+;
+
+Element
+    : Expression 
+    {
+        array_element_count += 1;
+    }
 ;
 
 Block  
@@ -288,7 +332,7 @@ AdditionExpr
 ;
 
 MultiplicationExpr
-    : UnaryExpr mul_op UnaryExpr
+    : BitOperationExpr mul_op BitOperationExpr
     {
         if((strcmp($<s_var>2, "REM") == 0)&&(strcmp($<s_var>3, "float32") == 0)){
             printf("error:%d: invalid operation: (operator REM not defined on float32)\n", yylineno);
@@ -296,13 +340,29 @@ MultiplicationExpr
         $$ = $1;
         printf("%s\n", $<s_var>2);
     }
-    | UnaryExpr {$$ = $1;}
+    | BitOperationExpr {$$ = $1;}
 ;
+
+BitOperationExpr
+    : BitOperationExpr bit_op2 BitOperationExpr { {
+         if(strcmp($<s_var>1, $<s_var>3) != 0){
+            printf("error:%d: invalid operation: %s (mismatched types %s and %s)\n", yylineno, $<s_var>2, $<s_var>1, $<s_var>3);
+        }
+        $$ = $1;
+        printf("%s\n", $<s_var>2);
+        }
+    }
+    | bit_op UnaryExpr { $$ = $<s_var>2; printf("%s\n", $<s_var>1);}
+    | UnaryExpr {$$ = $<s_var>1;}
+;
+
+
 
 UnaryExpr
     : unary_op UnaryExpr { $$ = $2; printf("%s\n", $<s_var>1);}
     | PrimaryExpr { $$ = $1; }
 ;
+
 
 cmp_op 
     : EQL { $$ = "EQL"; }
@@ -330,6 +390,17 @@ unary_op
     | NOT { $$ = "NOT"; }
 ;
 
+bit_op2
+    : BAN { $$ = "BAN"; }
+    | BOR { $$ = "BOR"; }
+    /* | SHL { $$ = "SHL"; } */
+    | SHR { $$ = "SHR"; }
+    | BXO { $$ = "BXO"; }
+;
+
+bit_op
+    : BNT { $$ = "BNT"; }
+;
 
 Type
 	: INT		{ $$ = "int"; }
@@ -351,7 +422,7 @@ Operand
 ;
 
 ConversionExpr 
-    : '(' Type ')' Expression  {printf("%c2%c\n", $<s_var>3[0], $<s_var>1[0]);}
+    : '(' Type ')' Expression  {printf("%c2%c\n", $<s_var>3[0], $<s_var>1[0]); }
 ;
 
 Literal

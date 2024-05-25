@@ -21,8 +21,8 @@ char* catDoller(const char* s1, const char* s2);
 void pushScope();
 void dumpScope();
 
-Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_param);
-Symbol* findSymbol(char* name);
+Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_param, bool is_array);
+char* findSymbol(char* name);
 
 bool expression(char op, Symbol* a, Symbol* b, Symbol* out);
 bool expBinary(char op, Symbol* a, Symbol* b, Symbol* out);
@@ -38,6 +38,8 @@ bool cast(Type type, Symbol* dest, Symbol* out);
 
 void initJNISignature();
 void buildJNISignature(Type type, bool isArr);
+void setVarType(Type type);
+
 // void stdoutPrint();
 
 // void insert_symbol(bool is_function, bool is_param, char* name, char* type, char* func_sig);
