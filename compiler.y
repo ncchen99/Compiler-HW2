@@ -143,7 +143,7 @@ AssignmentStmt
 ;
 
 assign_op
-    : '=' {$$ = "ASSIGN";}
+    : VAL_ASSIGN {$$ = "ASSIGN";}
     | ADD_ASSIGN {$$ = "ADD";}
     | SUB_ASSIGN {$$ = "SUB";}
     | MUL_ASSIGN {$$ = "MUL";}
@@ -248,7 +248,7 @@ LogicalANDExpr
             printf("error:%d: invalid operation: (operator LAND not defined on int32)\n", yylineno);
         }
         $$ = "bool"; 
-        printf("LAND\n");
+        printf("LAN\n");
     }
     | ComparisonExpr {$$ = $1;}
 ;
@@ -301,27 +301,27 @@ UnaryExpr
 cmp_op 
     : EQL { $$ = "EQL"; }
     | NEQ { $$ = "NEQ"; }
-    | '<' { $$ = "LES"; }
+    | LES { $$ = "LES"; }
     | LEQ { $$ = "LEQ"; }
-    | '>' { $$ = "GTR"; }
+    | GTR { $$ = "GTR"; }
     | GEQ { $$ = "GEQ"; }
 ;
 
 add_op 
-    : '+' { $$ = "ADD"; }
-    | '-' { $$ = "SUB"; }
+    : ADD { $$ = "ADD"; }
+    | SUB { $$ = "SUB"; }
 ;
 
 mul_op 
-    : '*' { $$ = "MUL"; }
-    | '/' { $$ = "QUO"; }
-    | '%' { $$ = "REM"; }
+    : MUL { $$ = "MUL"; }
+    | DIV { $$ = "DIV"; }
+    | REM { $$ = "REM"; }
 ;
 
 unary_op 
-    : '+' { $$ = "POS"; }
-    | '-' { $$ = "NEG"; }
-    | '!' { $$ = "NOT"; }
+    : ADD { $$ = "POS"; }
+    | SUB { $$ = "NEG"; }
+    | NOT { $$ = "NOT"; }
 ;
 
 
@@ -345,7 +345,7 @@ Operand
 ;
 
 ConversionExpr 
-    : Type '(' Expression ')' {printf("%c2%c\n", $<s_var>3[0], $<s_var>1[0]);}
+    : '(' Type ')' Expression  {printf("%c2%c\n", $<s_var>3[0], $<s_var>1[0]);}
 ;
 
 Literal
@@ -357,14 +357,9 @@ Literal
         {$$ = "float"; 
         printf("FLOAT_LIT %f\n", $<f_var>1); 
         }
-    | TRUE 
+    | BOOL_LIT 
         {$$ = "bool"; 
-        printf("BOOL_LIT TRUE\n");
-        }
-    | FALSE 
-        {   
-            $$ = "bool"; 
-            printf("BOOL_LIT FALSE\n");
+        printf("BOOL_LIT %s\n", $<b_var>1 ? "TRUE" : "FALSE"); 
         }
     | STR_LIT 
         {
