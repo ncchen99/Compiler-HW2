@@ -199,7 +199,7 @@ Declarator
 	}
 	| IDENT '[' Expression ']' '[' Expression ']' 
     {
-		printf("create array: %d\n", 0);
+		// printf("create array: %d\n", 0); 
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
 	}
 	| IDENT '[' Expression ']' VAL_ASSIGN { array_element_count = 0; } '{' ElementList '}' 
