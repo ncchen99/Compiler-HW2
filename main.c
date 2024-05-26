@@ -38,6 +38,7 @@ Stack s;
 char* funcSig;
 Type funcReturnType;
 Type variableTypeRecord = UNDEFINED_TYPE;
+char variableNameRecord[101] = "";
 
 Table tables[100];
 
@@ -130,6 +131,7 @@ Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_
     struct table* curTable = &tables[peek(&s)];
     struct symbol* newSymbol = &curTable->symbols[curTable->size];
     newSymbol->name = strdup(name);
+    strcpy(variableNameRecord, name);
     if (is_function) {
         newSymbol->type = strdup("function");
         funcReturnType = type;
@@ -175,7 +177,7 @@ char* getSymbolType(char* name) {
 }
 
 void updateSymbolType(char* name, Type type) {
-    Symbol* curSymbol = findSymbol(name);
+    Symbol* curSymbol = findSymbol(name == NULL ? variableNameRecord : name);
     curSymbol->type = strdup(SymbolTypeName[type]);
 }
 

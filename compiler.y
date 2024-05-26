@@ -274,11 +274,9 @@ FORStmt
 
 ForClause
     : InitStmt ';' Condition ';' PostStmt
-    | VARIABLE_T IDENT {createSymbol(0, $<s_var>2, VAR_FLAG_DEFAULT, false, false, false);} ':' Expression 
+    | DeclarationStmt ':' Expression 
     {
-        if($<var_type>1 == AUTO_TYPE) {
-            updateSymbolType($<s_var>2, INT_TYPE);
-        }
+        updateSymbolType(NULL, INT_TYPE);
     }
     
 ;
