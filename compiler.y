@@ -458,6 +458,7 @@ Variable
     : IDENT { $$ = getSymbolType($<s_var>1);} 
     | IDENT '(' ElementList ')' { getSymbolType($<s_var>1);} 
     | IDENT '[' Expression ']' { $$ = getSymbolType($<s_var>1); }
+    | IDENT '[' Expression ']' '[' Expression ']' { $$ = getSymbolType($<s_var>1); }
 ;
 
 ConversionExpr 
