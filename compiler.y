@@ -276,7 +276,7 @@ ForClause
     : InitStmt ';' Condition ';' PostStmt
     | DeclarationStmt ':' Expression 
     {
-        updateSymbolType(NULL, INT_TYPE);
+        updateSymbolType(NULL, getVarTypeByStr($<s_var>3));
     }
     
 ;
