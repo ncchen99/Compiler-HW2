@@ -71,6 +71,7 @@ FunctionDeclStmt
         } '(' ParameterList ')'
         {
             buildJNISignature(0, false); // end of parameter list
+            
         } FuncBlock 
 ;
 
@@ -94,22 +95,12 @@ Parameter
     }
 
 FuncBlock
-    : '{' StatementList RETURNExpr '}' 
+    : '{' StatementList '}' 
     {
         dumpScope();
     }
 
-RETURNExpr
-    : RETURN Expression ';'
-    {
-        printf("RETURN\n");
-    }
-    | RETURN ';'
-    {
-        printf("RETURN\n");
-    }
-    |
-;
+
 
 
 StatementList
@@ -126,6 +117,7 @@ Statement
     | WHILEstmt
     | BREAKStmt ';'
     | CONTINUEStmt ';'
+    | RETURNStmt ';'
 ;
 
 SimpleStmt
@@ -194,7 +186,6 @@ Declarator
     }
 	| IDENT '[' Expression ']' 
     {
-		printf("create array: %d\n", 0);
 		createSymbol(0, $<s_var>1, VAR_FLAG_DEFAULT, false, false, true);
 	}
 	| IDENT '[' Expression ']' '[' Expression ']' 
@@ -224,7 +215,7 @@ Element
 
 Block  
     : '{' { pushScope(); } StatementList '}' { dumpScope(); }
-;
+; 
 
 
 CoutStmt
@@ -269,7 +260,8 @@ Condition
 ;
 
 FORStmt
-    :FOR { printf("FOR\n"); } '(' { pushScope(); } ForClause ')' FuncBlock 
+    : FOR { printf("FOR\n"); } '(' { pushScope(); } ForClause ')' FuncBlock
+    
 ;
 
 ForClause
@@ -290,6 +282,17 @@ BREAKStmt
         printf("BREAK\n");
     }
 ;   
+
+RETURNStmt
+    : RETURN Expression
+    {
+        printf("RETURN\n");
+    }
+    | RETURN
+    {
+        printf("RETURN\n");
+    }
+;
 
 CONTINUEStmt
     : CONTINUE
@@ -373,7 +376,12 @@ AdditionExpr
 ;
 
 MultiplicationExpr
-    : BitOperationExpr mul_op BitOperationExpr
+    : MultiplicationExpr mul_op BitOperationExpr
+    {
+        $$ = $1;
+        printf("%s\n", $<s_var>2);
+    }
+    | BitOperationExpr mul_op BitOperationExpr
     {
         if((strcmp($<s_var>2, "REM") == 0)&&(strcmp($<s_var>3, "float32") == 0)){
             printf("error:%d: invalid operation: (operator REM not defined on float32)\n", yylineno);
@@ -455,10 +463,10 @@ Operand
 ;
 
 Variable
-    : IDENT { $$ = getSymbolType($<s_var>1);} 
-    | IDENT '(' ElementList ')' { getSymbolType($<s_var>1);} 
-    | IDENT '[' Expression ']' { $$ = getSymbolType($<s_var>1); }
-    | IDENT '[' Expression ']' '[' Expression ']' { $$ = getSymbolType($<s_var>1); }
+    : IDENT { $$ = getSymbolType($<s_var>1, false);} 
+    | IDENT '(' ElementList ')' { $$ = getSymbolType($<s_var>1, true);} 
+    | IDENT '[' Expression ']' { $$ = getSymbolType($<s_var>1, false); }
+    | IDENT '[' Expression ']' '[' Expression ']' { $$ = getSymbolType($<s_var>1, false); }
 ;
 
 ConversionExpr 

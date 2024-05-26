@@ -43,3 +43,11 @@ int peek(Stack *s) {
     }
     return s->data[s->top];
 }
+
+int *all(Stack *s) {
+    return s->data;
+}
+
+int height(Stack *s) {
+    return s->top + 1;
+}

@@ -22,8 +22,8 @@ void pushScope();
 void dumpScope();
 
 Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_param, bool is_array);
-char* getSymbolType(char* name);
-Symbol* findSymbol(char* name);
+char* getSymbolType(char* name, bool is_function);
+Symbol* findSymbol(char* name, bool is_function);
 void updateSymbolType(char* name, Type type);
 
 bool expression(char op, Symbol* a, Symbol* b, Symbol* out);
@@ -40,6 +40,7 @@ bool cast(Type type, Symbol* dest, Symbol* out);
 
 void initJNISignature();
 void buildJNISignature(Type type, bool isArr);
+char* getReturnTypeByJNISignature(char* signature);
 void setVarType(Type type);
 Type getVarType();
 Type getVarTypeByStr(char* type);

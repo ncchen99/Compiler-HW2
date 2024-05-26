@@ -96,7 +96,7 @@ Type getVarTypeByStr(char* type) {
 }
 
 void initJNISignature() {
-    funcSig = (char*)malloc(100);
+    funcSig = (char*)calloc(101, sizeof(char));
     funcSig[0] = '(';
     funcSig[1] = '\0';
 }
@@ -119,11 +119,33 @@ void buildJNISignature(Type type, bool isArr) {
         case STR_TYPE:
             strcat(funcSig, "Ljava/lang/String;");
             break;
+        case VOID_TYPE:
+            strcat(funcSig, "V");
+            break;
         default:
             strcat(funcSig, ")");
             buildJNISignature(funcReturnType, false);
             break;
     }
+}
+
+char* getReturnTypeByJNISignature(char* signature) {
+    const char* d = ")";
+    char* p = strtok(signature, d);
+    p = strtok(NULL, d);
+    char* returnType = (char*)calloc(101, sizeof(char));
+    if (strcmp(p, "I") == 0) {
+        strcpy(returnType, "int");
+    } else if (strcmp(p, "F") == 0) {
+        strcpy(returnType, "float");
+    } else if (strcmp(p, "B") == 0) {
+        strcpy(returnType, "bool");
+    } else if (strcmp(p, "Ljava/lang/String;") == 0) {
+        strcpy(returnType, "string");
+    } else if (strcmp(p, "V") == 0) {
+        strcpy(returnType, "void");
+    }
+    return returnType;
 }
 
 Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_param, bool is_array) {
@@ -151,13 +173,15 @@ Symbol* createSymbol(Type type, char* name, int flag, bool is_function, bool is_
     return newSymbol;
 }
 
-Symbol* findSymbol(char* name) {
+Symbol* findSymbol(char* name, bool is_function) {
+    int h = height(&s);
+    int* stack = all(&s);
     Symbol* curSymbol = NULL;
-    for (int i = tableIndex; i >= 0; i--) {
-        struct table* curTable = &tables[i];
+    for (int i = h; i >= 0; i--) {
+        Table* curTable = &tables[stack[i]];
         for (int j = 0; j < curTable->size; j++) {
             curSymbol = &curTable->symbols[j];
-            if (strcmp(curSymbol->name, name) == 0) {
+            if (strcmp(curSymbol->name, name) == 0 && (!is_function ? strcmp(curSymbol->type, "function") != 0 : strcmp(curSymbol->type, "function") == 0)) {
                 return curSymbol;
             }
         }
@@ -165,11 +189,12 @@ Symbol* findSymbol(char* name) {
     return NULL;
 }
 
-char* getSymbolType(char* name) {
-    Symbol* curSymbol = findSymbol(name);
+char* getSymbolType(char* name, bool is_function) {
+    Symbol* curSymbol = findSymbol(name, is_function);
     if (strcmp(curSymbol->type, "function") == 0) {
         printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
         printf("call: %s%s\n", curSymbol->name, curSymbol->func_sig);
+        return getReturnTypeByJNISignature(strdup(curSymbol->func_sig));
     } else {
         printf("IDENT (name=%s, address=%d)\n", curSymbol->name, curSymbol->addr);
     }
@@ -177,7 +202,7 @@ char* getSymbolType(char* name) {
 }
 
 void updateSymbolType(char* name, Type type) {
-    Symbol* curSymbol = findSymbol(name == NULL ? variableNameRecord : name);
+    Symbol* curSymbol = findSymbol(name == NULL ? variableNameRecord : name, false);
     curSymbol->type = strdup(SymbolTypeName[type]);
 }
 

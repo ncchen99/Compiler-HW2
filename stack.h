@@ -18,5 +18,7 @@ int isFull(Stack *s);
 void push(Stack *s, int value);
 int pop(Stack *s);
 int peek(Stack *s);
+int *all(Stack *s);
+int height(Stack *s);
 
 #endif  // STACK_H
